@@ -37,11 +37,13 @@ def create_app(config_name='default'):
     from app.routes.auth import auth as auth_blueprint
     from app.routes.api import api as api_blueprint
     from app.routes.admin import admin as admin_blueprint
-    
+    from app.routes.price_updates import price_api as price_api_blueprint
+
     app.register_blueprint(main_blueprint)
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(api_blueprint, url_prefix='/api')
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
+    app.register_blueprint(price_api_blueprint)
     
     # Create database tables (AFTER importing models)
     with app.app_context():
