@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Aurora{% endblock %}
+
+{% block content %}
+<div class="category-header">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('main.index') }}">Hem</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">{{ category.name }}</span>
+        </nav>
+        <h1 class="category-title">{{ category.name }}</h1>
+        {% if subcategories %}
+        <div class="subcategories">
+            {% for sub in subcategories %}
+                <a href="{{ url_for('main.category', slug=sub.slug) }}" class="subcategory-link">{{ sub.name }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="category-content">
+    <div class="container">
+        <div class="category-layout">
+            <aside class="filters-sidebar">
+                <div class="filter-section">
+                    <h3>Filtrera</h3>
+                    <form method="get" id="filter-form">
+                        {% if price_range[0] and price_range[1] %}
+                        <div class="filter-group">
+                            <label>Pris</label>
+                            <div class="price-inputs">
+                                <input type="number" name="min_price" placeholder="Min" value="{{ request.args.get('min_price', '') }}" class="price-input">
+                                <span>-</span>
+                                <input type="number" name="max_price" placeholder="Max" value="{{ request.args.get('max_price', '') }}" class="price-input">
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if brands %}
+                        <div class="filter-group">
+                            <label>Varumärke</label>
+                            <div class="checkbox-list">
+                                {% for brand in brands[:10] %}
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="brand" value="{{ brand }}" {% if request.args.get('brand') == brand %}checked{% endif %}>
+                                    {{ brand }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="filter-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="in_stock" value="1" {% if request.args.get('in_stock') %}checked{% endif %}>
+                                Endast produkter i lager
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">Applicera filter</button>
+                    </form>
+                </div>
+            </aside>
+            
+            <div class="products-section">
+                <div class="products-header">
+                    <div class="results-count">
+                        <strong>{{ products.total }}</strong> produkter hittades
+                    </div>
+                    <div class="sort-options">
+                        <label>Sortera:</label>
+                        <select name="sort" class="sort-select" onchange="window.location.href=this.value">
+                            <option value="?sort=popular" {% if sort == 'popular' %}selected{% endif %}>Populärast</option>
+                            <option value="?sort=price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Pris: Lägst först</option>
+                            <option value="?sort=price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Pris: Högst först</option>
+                            <option value="?sort=rating" {% if sort == 'rating' %}selected{% endif %}>Bäst betyg</option>
+                        </select>
+                    </div>
+                </div>
+                
+                {% if products.items %}
+                <div class="products-grid">
+                    {% for product in products.items %}
+                    <div class="product-card">
+                        <a href="{{ url_for('main.product', slug=product.slug) }}" class="product-image-wrapper">
+                            <img src="{{ product.image_url or 'https://via.placeholder.com/200x200' }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                        </a>
+                        <div class="product-info">
+                            <a href="{{ url_for('main.product', slug=product.slug) }}" class="product-name">{{ product.name }}</a>
+                            <p class="product-brand">{{ product.brand or '' }}</p>
+                            {% set lowest = product.lowest_price %}
+                            {% if lowest %}
+                            <div class="product-price">
+                                <span class="price-current">{{ "%.0f"|format(lowest.price) }} kr</span>
+                                <span class="price-shipping">+ frakt</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if products.pages > 1 %}
+                <div class="pagination">
+                    {% if products.has_prev %}
+                    <a href="?page={{ products.prev_num }}" class="pagination-link">&laquo; Föregående</a>
+                    {% endif %}
+                    
+                    {% for page_num in products.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            <a href="?page={{ page_num }}" class="pagination-link {% if page_num == products.page %}active{% endif %}">{{ page_num }}</a>
+                        {% else %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <a href="?page={{ products.next_num }}" class="pagination-link">Nästa &raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-search"></i>
+                    <h3>Inga produkter hittades</h3>
+                    <p>Prova att ändra dina filter eller sök efter något annat.</p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Tillbaka till startsidan</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Hantera butiker - Aurora Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="admin-header">
+            <h1><i class="bi bi-shop"></i> Hantera butiker</h1>
+            <a href="{{ url_for('admin.add_store') }}" class="btn btn-primary"><i class="bi bi-plus"></i> Lägg till butik</a>
+        </div>
+        
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Namn</th>
+                    <th>URL</th>
+                    <th>Rating</th>
+                    <th>Verifierad</th>
+                    <th>Åtgärder</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for store in stores.items %}
+                <tr>
+                    <td>{{ store.id }}</td>
+                    <td>{{ store.name }}</td>
+                    <td><a href="{{ store.url }}" target="_blank">{{ store.url[:30] }}...</a></td>
+                    <td>{{ store.rating }}/5</td>
+                    <td>{% if store.verified %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}-{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_store', id=store.id) }}" class="btn-icon"><i class="bi bi-pencil"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Hantera produkter - Aurora Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="admin-header">
+            <h1><i class="bi bi-box"></i> Hantera produkter</h1>
+            <a href="{{ url_for('admin.add_product') }}" class="btn btn-primary"><i class="bi bi-plus"></i> Lägg till produkt</a>
+        </div>
+        
+        <div class="admin-filters">
+            <form method="get" class="search-form">
+                <input type="text" name="search" placeholder="Sök produkter..." value="{{ search }}" class="form-input">
+                <button type="submit" class="btn btn-secondary">Sök</button>
+            </form>
+        </div>
+        
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Namn</th>
+                    <th>Varumärke</th>
+                    <th>Kategori</th>
+                    <th>Pris</th>
+                    <th>Butiker</th>
+                    <th>Åtgärder</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products.items %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td><a href="{{ url_for('main.product', slug=product.slug) }}" target="_blank">{{ product.name }}</a></td>
+                    <td>{{ product.brand or '-' }}</td>
+                    <td>{{ product.category.name if product.category else '-' }}</td>
+                    <td>{{ "%.0f"|format(product.lowest_price.price) if product.lowest_price else '-' }} kr</td>
+                    <td>{{ product.store_count }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn-icon"><i class="bi bi-pencil"></i></a>
+                        <form method="POST" action="{{ url_for('admin.delete_product', id=product.id) }}" style="display:inline;">
+                            <button type="submit" class="btn-icon btn-delete" onclick="return confirm('Ta bort?')"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {% if products.pages > 1 %}
+        <div class="pagination">
+            {% for page in products.iter_pages() %}
+                {% if page %}
+                    <a href="?page={{ page }}&search={{ search }}" class="pagination-link {% if page == products.page %}active{% endif %}">{{ page }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

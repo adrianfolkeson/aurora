@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Skapa konto - Aurora{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="container">
+        <div class="auth-card">
+            <h1><i class="bi bi-person-plus"></i> Skapa konto</h1>
+            <form method="POST" class="auth-form">
+                <div class="form-group">
+                    <label for="name">Namn</label>
+                    <input type="text" id="name" name="name" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-post</label>
+                    <input type="email" id="email" name="email" required class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="password">Lösenord</label>
+                    <input type="password" id="password" name="password" required class="form-input">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Skapa konto</button>
+            </form>
+            <p class="auth-link">Har redan ett konto? <a href="{{ url_for('auth.login') }}">Logga in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

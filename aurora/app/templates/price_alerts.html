@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Mina prislarm - Aurora{% endblock %}
+
+{% block content %}
+<div class="price-alerts-page">
+    <div class="container">
+        <h1><i class="bi bi-bell-fill"></i> Mina prislarm</h1>
+        
+        {% if alerts %}
+        <div class="alerts-list">
+            {% for alert in alerts %}
+            <div class="alert-card">
+                <div class="alert-product">
+                    <img src="{{ alert.product.image_url or 'https://via.placeholder.com/80x80' }}" alt="{{ alert.product.name }}" class="alert-product-image">
+                    <div class="alert-product-info">
+                        <a href="{{ url_for('main.product', slug=alert.product.slug) }}" class="alert-product-name">{{ alert.product.name }}</a>
+                        <span class="alert-target">Målpris: <strong>{{ "%.0f"|format(alert.target_price) }} kr</strong></span>
+                    </div>
+                </div>
+                <div class="alert-current">
+                    {% if alert.product.lowest_price %}
+                    <span class="current-price">Nuvarande: {{ "%.0f"|format(alert.product.lowest_price.price) }} kr</span>
+                    {% if alert.product.lowest_price.price <= alert.target_price %}
+                    <span class="alert-reached"><i class="bi bi-check-circle-fill"></i> Målet nått!</span>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                <form method="POST" action="{{ url_for('main.delete_price_alert', alert_id=alert.id) }}" class="alert-delete-form">
+                    <button type="submit" class="btn-delete"><i class="bi bi-trash"></i></button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-bell"></i>
+            <h3>Inga prislarm än</h3>
+            <p>Skapa prislarm för produkter du vill köpa.</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Utforska produkter</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

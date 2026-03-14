@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Aurora{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="bi bi-box-seam"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ total_products }}</span>
+                    <span class="stat-label">Produkter</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-shop"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ total_stores }}</span>
+                    <span class="stat-label">Butiker</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-people"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ total_users }}</span>
+                    <span class="stat-label">Användare</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-cursor"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ total_clicks }}</span>
+                    <span class="stat-label">Klick totalt</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-eye"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ total_page_views }}</span>
+                    <span class="stat-label">Sidvisningar</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-graph-up"></i>
+                <div class="stat-info">
+                    <span class="stat-value">{{ today_clicks }}</span>
+                    <span class="stat-label">Klick idag</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-grid">
+            <div class="admin-section">
+                <h2><i class="bi bi-fire"></i> Populära produkter</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Produkt</th>
+                            <th>Klick</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product, clicks in top_products %}
+                        <tr>
+                            <td><a href="{{ url_for('main.product', slug=product.slug) }}">{{ product.name }}</a></td>
+                            <td>{{ clicks }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="admin-section">
+                <h2><i class="bi bi-clock-history"></i> Senaste klick</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Tid</th>
+                            <th>Produkt</th>
+                            <th>Butik</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for click in recent_clicks %}
+                        <tr>
+                            <td>{{ click.clicked_at.strftime('%H:%M') }}</td>
+                            <td>{{ click.product.name if click.product else 'N/A' }}</td>
+                            <td>{{ click.store.name if click.store else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="admin-links">
+            <a href="{{ url_for('admin.products') }}" class="admin-link-card">
+                <i class="bi bi-box"></i>
+                <span>Hantera produkter</span>
+            </a>
+            <a href="{{ url_for('admin.stores') }}" class="admin-link-card">
+                <i class="bi bi-shop"></i>
+                <span>Hantera butiker</span>
+            </a>
+            <a href="{{ url_for('admin.categories') }}" class="admin-link-card">
+                <i class="bi bi-tags"></i>
+                <span>Hantera kategorier</span>
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="admin-link-card">
+                <i class="bi bi-people"></i>
+                <span>Hantera användare</span>
+            </a>
+            <a href="{{ url_for('admin.analytics') }}" class="admin-link-card">
+                <i class="bi bi-bar-chart"></i>
+                <span>Analys</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

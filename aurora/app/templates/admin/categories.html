@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Hantera kategorier - Aurora Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <h1><i class="bi bi-tags"></i> Hantera kategorier</h1>
+        
+        <div class="add-category-form">
+            <form method="POST" action="{{ url_for('admin.add_category') }}" class="form-inline">
+                <input type="text" name="name" placeholder="Kategorinamn" required class="form-input">
+                <input type="text" name="icon" placeholder="Ikon (t.ex. laptop)" class="form-input">
+                <select name="parent_id" class="form-input">
+                    <option value="">Ingen överkategori</option>
+                    {% for cat in categories %}
+                        {% if not cat.parent_id %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Lägg till</button>
+            </form>
+        </div>
+        
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Namn</th>
+                    <th>Slug</th>
+                    <th>Produkter</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>{{ category.id }}</td>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.slug }}</td>
+                    <td>{{ category.product_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

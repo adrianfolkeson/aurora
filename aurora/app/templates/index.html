@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Aurora - Jämför priser på elektronik, datorer, telefoner{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">Hitta bästa priset på produkter du älskar</h1>
+        <p class="hero-subtitle">Jämför priser från Sveriges bästa butiker på en och samma plats</p>
+        
+        <div class="hero-search">
+            <form action="{{ url_for('main.search') }}" method="get" class="hero-search-form">
+                <input type="text" name="q" placeholder="Sök produkter, kategorier, varumärken..." class="hero-search-input" required>
+                <button type="submit" class="hero-search-btn">
+                    <i class="bi bi-search"></i> Sök
+                </button>
+            </form>
+        </div>
+        
+        <div class="hero-stats">
+            <div class="stat-item">
+                <span class="stat-number">10,000+</span>
+                <span class="stat-label">Produkter</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">100+</span>
+                <span class="stat-label">Butiker</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">50,000+</span>
+                <span class="stat-label">Priser</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section categories-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Utforska kategorier</h2>
+            <a href="{{ url_for('main.stores') }}" class="view-all-link">Visa alla <i class="bi bi-arrow-right"></i></a>
+        </div>
+        
+        <div class="categories-grid">
+            {% for category in categories %}
+            <a href="{{ url_for('main.category', slug=category.slug) }}" class="category-card">
+                <div class="category-icon">
+                    <i class="bi bi-{{ category.icon or 'box' }}"></i>
+                </div>
+                <span class="category-name">{{ category.name }}</span>
+                <span class="category-count">{{ category.product_count }} produkter</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if trending_products %}
+<section class="section trending-section">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="bi bi-fire"></i> Trending produkter</h2>
+        </div>
+        
+        <div class="products-grid">
+            {% for product in trending_products %}
+            <div class="product-card">
+                <a href="{{ url_for('main.product', slug=product.slug) }}" class="product-image-wrapper">
+                    <img src="{{ product.image_url or 'https://via.placeholder.com/200x200' }}" alt="{{ product.name }}" class="product-image">
+                </a>
+                <div class="product-info">
+                    <a href="{{ url_for('main.product', slug=product.slug) }}" class="product-name">{{ product.name }}</a>
+                    <p class="product-brand">{{ product.brand or '' }}</p>
+                    {% if product.lowest_price %}
+                    <div class="product-price">
+                        <span class="price-current">{{ "%.0f"|format(product.lowest_price.price) }} kr</span>
+                        {% if product.store_count > 1 %}
+                        <span class="price-stores">från {{ product.store_count }} butiker</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if featured_stores %}
+<section class="section stores-section">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="bi bi-shop"></i> Populära butiker</h2>
+            <a href="{{ url_for('main.stores') }}" class="view-all-link">Visa alla <i class="bi bi-arrow-right"></i></a>
+        </div>
+        
+        <div class="stores-grid">
+            {% for store in featured_stores %}
+            <a href="{{ url_for('main.store', slug=store.slug) }}" class="store-card">
+                {% if store.logo %}
+                <img src="{{ store.logo }}" alt="{{ store.name }}" class="store-logo">
+                {% else %}
+                <div class="store-logo-placeholder">
+                    <i class="bi bi-shop"></i>
+                </div>
+                {% endif %}
+                <span class="store-name">{{ store.name }}</span>
+                {% if store.verified %}
+                <span class="store-verified"><i class="bi bi-patch-check-fill"></i> Verifierad</span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Spara pengar med Aurora</h2>
+            <p>Skapa ett konto för att spara favoriter, få prislarm och jämföra priser enkelt.</p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Skapa konto gratis</a>
+                <a href="{{ url_for('main.search') }}" class="btn btn-secondary">Utforska produkter</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

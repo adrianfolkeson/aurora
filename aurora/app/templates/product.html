@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Aurora{% endblock %}
+
+{% block content %}
+<div class="product-page">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('main.index') }}">Hem</a>
+            <span class="breadcrumb-separator">/</span>
+            {% if product.category %}
+            <a href="{{ url_for('main.category', slug=product.category.slug) }}">{{ product.category.name }}</a>
+            <span class="breadcrumb-separator">/</span>
+            {% endif %}
+            <span class="breadcrumb-current">{{ product.name }}</span>
+        </nav>
+        
+        <div class="product-main">
+            <div class="product-gallery">
+                <div class="product-main-image">
+                    <img src="{{ product.image_url or 'https://via.placeholder.com/500x500' }}" alt="{{ product.name }}" id="main-image">
+                </div>
+            </div>
+            
+            <div class="product-details">
+                <h1 class="product-title">{{ product.name }}</h1>
+                {% if product.brand %}
+                <p class="product-brand">Varumärke: <strong>{{ product.brand }}</strong></p>
+                {% endif %}
+                
+                <div class="product-actions">
+                    {% if current_user.is_authenticated %}
+                    <button class="btn-favorite {% if is_favorited %}active{% endif %}" data-product-id="{{ product.id }}" id="favorite-btn">
+                        <i class="bi bi-heart{% if is_favorited %}-fill{% endif %}"></i>
+                        <span>{% if is_favorited %}Sparad{% else %}Spara{% endif %}</span>
+                    </button>
+                    {% endif %}
+                </div>
+                
+                {% if product.description %}
+                <div class="product-description">
+                    <h3>Beskrivning</h3>
+                    <p>{{ product.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="prices-section">
+            <h2><i class="bi bi-tag"></i> Priser från butiker</h2>
+            
+            <div class="prices-table">
+                <div class="prices-header">
+                    <div class="col-store">Butik</div>
+                    <div class="col-price">Pris</div>
+                    <div class="col-shipping">Frakt</div>
+                    <div class="col-stock">Lager</div>
+                    <div class="col-action"></div>
+                </div>
+                
+                {% for price in prices %}
+                <div class="prices-row {% if loop.first %}best-price{% endif %}">
+                    <div class="col-store">
+                        <div class="store-info">
+                            {% if price.store.logo %}
+                            <img src="{{ price.store.logo }}" alt="{{ price.store.name }}" class="store-logo">
+                            {% else %}
+                            <div class="store-logo-placeholder">{{ price.store.name[0] }}</div>
+                            {% endif %}
+                            <span class="store-name">{{ price.store.name }}</span>
+                            {% if price.store.verified %}
+                            <span class="verified-badge"><i class="bi bi-patch-check-fill"></i></span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-price">
+                        <span class="price-value">{{ "%.0f"|format(price.price) }} kr</span>
+                        {% if loop.first %}
+                        <span class="best-price-badge">Bästa pris</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-shipping">
+                        {% if price.shipping > 0 %}
+                        <span>{{ "%.0f"|format(price.shipping) }} kr</span>
+                        {% else %}
+                        <span class="free-shipping">Gratis</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-stock">
+                        {% if price.stock_status == 'in_stock' %}
+                        <span class="stock-status in-stock"><i class="bi bi-check-circle"></i> I lager</span>
+                        {% elif price.stock_status == 'low_stock' %}
+                        <span class="stock-status low-stock"><i class="bi bi-exclamation-circle"></i> Få kvar</span>
+                        {% else %}
+                        <span class="stock-status out-of-stock"><i class="bi bi-x-circle"></i> Slut i lager</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-action">
+                        <a href="{{ url_for('main.click', price_id=price.id) }}" class="btn btn-primary" target="_blank" rel="nofollow">
+                            Till butik <i class="bi bi-arrow-up-right"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        {% if price_history %}
+        <div class="price-history-section">
+            <h2><i class="bi bi-graph-down"></i> Prishistorik</h2>
+            <div class="price-history-chart" id="price-history-chart">
+                {% for history in price_history[:30] %}
+                <div class="history-point" title="{{ history.recorded_at.strftime('%Y-%m-%d') }}: {{ history.price }} kr"></div>
+                {% endfor %}
+            </div>
+            {% if product.lowest_price_ever %}
+            <p class="lowest-ever">Lägsta pris någonsin: <strong>{{ "%.0f"|format(product.lowest_price_ever) }} kr</strong></p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if current_user.is_authenticated and product.lowest_price %}
+        <div class="price-alert-section">
+            <h3><i class="bi bi-bell"></i> Sätt prislarm</h3>
+            <form method="POST" action="{{ url_for('main.create_price_alert') }}" class="price-alert-form">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <div class="form-row">
+                    <input type="number" name="target_price" placeholder="Målpris (kr)" value="{{ product.lowest_price.price }}" step="1" required>
+                    <button type="submit" class="btn btn-secondary">
+                        {% if has_alert %}Uppdatera{% else %}Skapa{% endif %} prislarm
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        
+        {% if similar_products %}
+        <div class="similar-products-section">
+            <h2>Liknande produkter</h2>
+            <div class="products-grid">
+                {% for similar in similar_products %}
+                <div class="product-card">
+                    <a href="{{ url_for('main.product', slug=similar.slug) }}" class="product-image-wrapper">
+                        <img src="{{ similar.image_url or 'https://via.placeholder.com/200x200' }}" alt="{{ similar.name }}" class="product-image">
+                    </a>
+                    <div class="product-info">
+                        <a href="{{ url_for('main.product', slug=similar.slug) }}" class="product-name">{{ similar.name }}</a>
+                        {% if similar.lowest_price %}
+                        <div class="product-price">
+                            <span class="price-current">{{ "%.0f"|format(similar.lowest_price.price) }} kr</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('favorite-btn')?.addEventListener('click', function() {
+    const productId = this.dataset.productId;
+    fetch(`/favorite/toggle/${productId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            const icon = this.querySelector('i');
+            const span = this.querySelector('span');
+            if (data.status === 'added') {
+                icon.classList.replace('bi-heart', 'bi-heart-fill');
+                span.textContent = 'Sparad';
+            } else {
+                icon.classList.replace('bi-heart-fill', 'bi-heart');
+                span.textContent = 'Spara';
+            }
+        });
+});
+</script>
+{% endblock %}

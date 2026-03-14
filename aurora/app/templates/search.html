@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Sök: {{ query }} - Aurora{% endblock %}
+
+{% block content %}
+<div class="search-page">
+    <div class="container">
+        <div class="search-header">
+            <h1>Sökresultat för "{{ query }}"</h1>
+            <p>{{ results.total }} produkter hittades</p>
+        </div>
+        
+        <div class="search-filters">
+            <div class="sort-options">
+                <label>Sortera:</label>
+                <select onchange="window.location.href=this.value">
+                    <option value="?q={{ query }}&sort=relevance" {% if sort == 'relevance' %}selected{% endif %}>Relevans</option>
+                    <option value="?q={{ query }}&sort=price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Pris: Lägst först</option>
+                    <option value="?q={{ query }}&sort=price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Pris: Högst först</option>
+                </select>
+            </div>
+        </div>
+        
+        {% if results.items %}
+        <div class="products-grid">
+            {% for product in results.items %}
+            <div class="product-card">
+                <a href="{{ url_for('main.product', slug=product.slug) }}" class="product-image-wrapper">
+                    <img src="{{ product.image_url or 'https://via.placeholder.com/200x200' }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                </a>
+                <div class="product-info">
+                    <a href="{{ url_for('main.product', slug=product.slug) }}" class="product-name">{{ product.name }}</a>
+                    <p class="product-brand">{{ product.brand or '' }}</p>
+                    {% set lowest = product.lowest_price %}
+                    {% if lowest %}
+                    <div class="product-price">
+                        <span class="price-current">{{ "%.0f"|format(lowest.price) }} kr</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if results.pages > 1 %}
+        <div class="pagination">
+            {% if results.has_prev %}
+            <a href="?q={{ query }}&page={{ results.prev_num }}" class="pagination-link">&laquo; Föregående</a>
+            {% endif %}
+            {% for page_num in results.iter_pages(left_edge=2, right_edge=2) %}
+                {% if page_num %}
+                <a href="?q={{ query }}&page={{ page_num }}" class="pagination-link {% if page_num == results.page %}active{% endif %}">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if results.has_next %}
+            <a href="?q={{ query }}&page={{ results.next_num }}" class="pagination-link">Nästa &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-search"></i>
+            <h3>Inga resultat hittades</h3>
+            <p>Prova att söka efter något annat.</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Till startsidan</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Mina favoriter - Aurora{% endblock %}
+
+{% block content %}
+<div class="favorites-page">
+    <div class="container">
+        <h1><i class="bi bi-heart-fill"></i> Mina favoriter</h1>
+        
+        {% if favorites %}
+        <div class="products-grid">
+            {% for fav in favorites %}
+            <div class="product-card">
+                <button class="remove-favorite" onclick="removeFavorite({{ fav.product.id }})">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                <a href="{{ url_for('main.product', slug=fav.product.slug) }}" class="product-image-wrapper">
+                    <img src="{{ fav.product.image_url or 'https://via.placeholder.com/200x200' }}" alt="{{ fav.product.name }}" class="product-image">
+                </a>
+                <div class="product-info">
+                    <a href="{{ url_for('main.product', slug=fav.product.slug) }}" class="product-name">{{ fav.product.name }}</a>
+                    {% set lowest = fav.product.lowest_price %}
+                    {% if lowest %}
+                    <div class="product-price">
+                        <span class="price-current">{{ "%.0f"|format(lowest.price) }} kr</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-heart"></i>
+            <h3>Inga favoriter än</h3>
+            <p>Spara produkter du vill köpa senare.</p>
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">Utforska produkter</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function removeFavorite(productId) {
+    fetch(`/favorite/toggle/${productId}`, { method: 'POST' })
+        .then(() => location.reload());
+}
+</script>
+{% endblock %}

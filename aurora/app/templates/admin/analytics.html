@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Analys - Aurora Admin{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <h1><i class="bi bi-bar-chart"></i> Analys</h1>
+        
+        <div class="analytics-filters">
+            <a href="?days=7" class="btn {% if days == 7 %}btn-primary{% else %}btn-secondary{% endif %}">7 dagar</a>
+            <a href="?days=30" class="btn {% if days == 30 %}btn-primary{% else %}btn-secondary{% endif %}">30 dagar</a>
+            <a href="?days=90" class="btn {% if days == 90 %}btn-primary{% else %}btn-secondary{% endif %}">90 dagar</a>
+        </div>
+        
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <h3>Sidevisningar per dag</h3>
+                <div class="analytics-data">
+                    {% for date, count in daily_views %}
+                    <div class="data-row">
+                        <span>{{ date }}</span>
+                        <span>{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="analytics-card">
+                <h3>Klick per dag</h3>
+                <div class="analytics-data">
+                    {% for date, count in daily_clicks %}
+                    <div class="data-row">
+                        <span>{{ date }}</span>
+                        <span>{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="analytics-card">
+                <h3>Top referrers</h3>
+                <div class="analytics-data">
+                    {% for referrer, count in top_referrers %}
+                    <div class="data-row">
+                        <span>{{ referrer[:50] }}</span>
+                        <span>{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

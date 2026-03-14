@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aurora - Jämför priser på elektronik, datorer, telefoner och mer">
+    <title>{% block title %}Aurora - Jämför priser{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="{{ url_for('main.index') }}" class="logo">
+                    <i class="bi bi-stars"></i> Aurora
+                </a>
+                
+                <form action="{{ url_for('main.search') }}" method="get" class="search-form">
+                    <div class="search-input-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="q" placeholder="Sök produkter, kategorier..." class="search-input" id="search-input" autocomplete="off">
+                        <button type="submit" class="search-btn">Sök</button>
+                    </div>
+                    <div class="search-suggestions" id="search-suggestions"></div>
+                </form>
+                
+                <nav class="nav-menu">
+                    <a href="{{ url_for('main.deals') }}" class="nav-link"><i class="bi bi-tag"></i> Erbjudanden</a>
+                    <a href="{{ url_for('main.stores') }}" class="nav-link"><i class="bi bi-shop"></i> Butiker</a>
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.favorites') }}" class="nav-link"><i class="bi bi-heart"></i> Favoriter</a>
+                        <a href="{{ url_for('main.price_alerts') }}" class="nav-link"><i class="bi bi-bell"></i> Prislarm</a>
+                        {% if current_user.is_admin() %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="nav-link admin-link"><i class="bi bi-gear"></i> Admin</a>
+                        {% endif %}
+                        <a href="{{ url_for('auth.logout') }}" class="nav-link"><i class="bi bi-box-arrow-right"></i> Logga ut</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="nav-link"><i class="bi bi-person"></i> Logga in</a>
+                    {% endif %}
+                </nav>
+                
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="category-nav">
+            <div class="container">
+                <div class="category-nav-inner">
+                    {% for category in all_categories[:8] %}
+                        <a href="{{ url_for('main.category', slug=category.slug) }}" class="category-link">
+                            {% if category.icon %}<i class="bi bi-{{ category.icon }}"></i>{% endif %}
+                            {{ category.name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <i class="bi bi-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                            {{ message }}
+                            <button class="alert-close">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4>Om Aurora</h4>
+                    <p>jämför priser från Sveriges bästa butiker. Hitta de bästa erbjudandena på elektronik, datorer, telefoner och mer.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Kategorier</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.category', slug='datorer') }}">Datorer</a></li>
+                        <li><a href="{{ url_for('main.category', slug='telefoner') }}">Telefoner</a></li>
+                        <li><a href="{{ url_for('main.category', slug='tv') }}">TV</a></li>
+                        <li><a href="{{ url_for('main.category', slug='ljud') }}">Ljud</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Butiker</h4>
+                    <ul>
+                        <li><a href="{{ url_for('main.stores') }}">Alla butiker</a></li>
+                        <li><a href="{{ url_for('main.deals') }}">Erbjudanden</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Juridiskt</h4>
+                    <ul>
+                        <li><a href="#">Integritetspolicy</a></li>
+                        <li><a href="#">Användarvillkor</a></li>
+                        <li><a href="#">Cookie-policy</a></li>
+                        <li><a href="#">Affiliate disclosure</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aurora. Alla rättigheter reserverade.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
