@@ -53,7 +53,7 @@
         <div class="category-nav">
             <div class="container">
                 <div class="category-nav-inner">
-                    {% for category in all_categories[:8] %}
+                    {% for category in (all_categories[:8] if all_categories else []) %}
                         <a href="{{ url_for('main.category', slug=category.slug) }}" class="category-link">
                             {% if category.icon %}<i class="bi bi-{{ category.icon }}"></i>{% endif %}
                             {{ category.name }}
