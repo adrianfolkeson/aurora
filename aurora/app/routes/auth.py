@@ -9,7 +9,7 @@ auth = Blueprint('auth', __name__)
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-    return render_template('login.html')
+    return render_template('auth/login.html')
 
 @auth.route('/login', methods=['POST'])
 def login_post():
@@ -32,7 +32,7 @@ def login_post():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
-    return render_template('register.html')
+    return render_template('auth/register.html')
 
 @auth.route('/register', methods=['POST'])
 def register_post():

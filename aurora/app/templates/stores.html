@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Butiker - Aurora{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title">Butiker</h1>
+        <p class="page-subtitle">Jämför priser hos dina favoritbutiker</p>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="container">
+        <div class="stores-grid">
+            {% for store in stores.items %}
+            <div class="store-card">
+                <a href="{{ url_for('main.store', slug=store.slug) }}" class="store-link">
+                    <div class="store-info">
+                        <h3 class="store-name">{{ store.name }}</h3>
+                        {% if store.description %}
+                        <p class="store-description">{{ store.description }}</p>
+                        {% endif %}
+                        <div class="store-meta">
+                            {% if store.rating %}
+                            <span class="store-rating">⭐ {{ store.rating }}/5</span>
+                            {% endif %}
+                            {% if store.verified %}
+                            <span class="store-verified">✓ Verifierad</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if stores.has_prev or stores.has_next %}
+        <div class="pagination">
+            {% if stores.has_prev %}
+            <a href="{{ url_for('main.stores', page=stores.prev_num) }}" class="pagination-link">Föregående</a>
+            {% endif %}
+            <span class="pagination-info">Sida {{ stores.page }} av {{ stores.pages }}</span>
+            {% if stores.has_next %}
+            <a href="{{ url_for('main.stores', page=stores.next_num) }}" class="pagination-link">Nästa</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

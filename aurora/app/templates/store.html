@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ store.name }} - Aurora{% endblock %}
+
+{% block content %}
+<div class="store-header">
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{{ url_for('main.index') }}">Hem</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="{{ url_for('main.stores') }}">Butiker</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">{{ store.name }}</span>
+        </nav>
+        <h1 class="store-title">{{ store.name }}</h1>
+        {% if store.description %}
+        <p class="store-description">{{ store.description }}</p>
+        {% endif %}
+        <div class="store-meta">
+            {% if store.rating %}
+            <span class="store-rating">⭐ Betyg: {{ store.rating }}/5</span>
+            {% endif %}
+            {% if store.verified %}
+            <span class="store-verified">✓ Verifierad butik</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="store-content">
+    <div class="container">
+        <h2>Produkter från {{ store.name }}</h2>
+        <div class="products-grid">
+            {% for price in products.items %}
+            <div class="product-card">
+                <a href="{{ url_for('main.product', slug=price.product.slug) }}" class="product-link">
+                    {% if price.product.image_url %}
+                    <img src="{{ price.product.image_url }}" alt="{{ price.product.name }}" class="product-image">
+                    {% else %}
+                    <div class="product-image-placeholder">
+                        <span>Ingen bild</span>
+                    </div>
+                    {% endif %}
+                    <div class="product-info">
+                        <h3 class="product-name">{{ price.product.name }}</h3>
+                        {% if price.product.brand %}
+                        <p class="product-brand">{{ price.product.brand }}</p>
+                        {% endif %}
+                        <div class="product-price">
+                            <span class="price-current">{{ price.price }} kr</span>
+                            {% if price.shipping > 0 %}
+                            <span class="price-shipping">+ {{ price.shipping }} kr frakt</span>
+                            {% else %}
+                            <span class="price-shipping">Fri frakt</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if products.has_prev or products.has_next %}
+        <div class="pagination">
+            {% if products.has_prev %}
+            <a href="{{ url_for('main.store', slug=store.slug, page=products.prev_num) }}" class="pagination-link">Föregående</a>
+            {% endif %}
+            <span class="pagination-info">Sida {{ products.page }} av {{ products.pages }}</span>
+            {% if products.has_next %}
+            <a href="{{ url_for('main.store', slug=store.slug, page=products.next_num) }}" class="pagination-link">Nästa</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
